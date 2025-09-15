@@ -1,0 +1,76 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.App-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  font-size: calc(10px + 2vmin);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box; /* Ensures padding doesn't increase total width */
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.response-container {
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #007bff;
+  border-radius: 8px;
+  background-color: #e9f7ff;
+  color: #333;
+  text-align: left;
+  max-width: 600px;
+  width: 100%;
+}
+
+.response-container h2 {
+  color: #007bff;
+  margin-top: 0;
+  font-size: 1.5em;
+}
+
+.response-container p {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.error-message {
+  color: red;
+  margin-top: 20px;
+}

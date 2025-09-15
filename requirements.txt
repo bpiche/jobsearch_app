@@ -2,3 +2,4 @@ langchain
 langgraph
 ollama
 Flask
+langchain-community

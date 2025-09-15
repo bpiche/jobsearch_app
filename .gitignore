@@ -12,3 +12,7 @@ venv/
 
 # Sensitive files
 pubkey.txt
+
+# Node.js and Frontend
+frontend/node_modules/
+frontend/dist/
