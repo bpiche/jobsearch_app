@@ -12,65 +12,111 @@
   justify-content: center;
   min-height: 80vh;
   font-size: calc(10px + 2vmin);
+  width: 100%;
 }
 
-form {
+h1 {
+  font-size: 2.5em; /* Adjusted for chat interface */
+  margin-bottom: 20px;
+  margin-top: 0;
+}
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 700px; /* Wider chat window */
+  height: 600px; /* Fixed height for chat window */
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #f9f9f9; /* Light background for chat */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.messages-container {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 100%;
-  max-width: 500px;
-  margin-top: 20px;
+  background-color: #e6e6fa; /* Lighter background for messages */
 }
 
-input[type="text"] {
-  padding: 10px;
-  border-radius: 5px;
+.message {
+  display: flex;
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 80%;
+  word-wrap: break-word;
+  color: #333; /* Default message color */
+}
+
+.message.user {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+  border-bottom-right-radius: 5px; /* Tail for user messages */
+}
+
+.message.agent {
+  align-self: flex-start;
+  background-color: #ddd;
+  border-bottom-left-radius: 5px; /* Tail for agent messages */
+}
+
+.message.error {
+    align-self: center;
+    background-color: #ffcccc;
+    color: red;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message p {
+  margin: 0;
+}
+
+.input-area {
+  display: flex;
+  padding: 15px;
+  background-color: #fff;
+  border-top: 1px solid #eee;
+  position: relative; /* For button positioning */
+}
+
+textarea {
+  flex-grow: 1;
+  padding: 10px 40px 10px 10px; /* Space for button */
+  border-radius: 20px;
   border: 1px solid #ccc;
   font-size: 1em;
-  width: 100%;
-  box-sizing: border-box; /* Ensures padding doesn't increase total width */
+  resize: none; /* Prevent manual resizing */
+  margin-right: -45px; /* Overlap with button */
+  box-sizing: border-box;
 }
 
-button {
-  padding: 10px 15px;
+button[type="submit"] {
+  padding: 8px 15px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 0.9em;
+  position: absolute; /* Position relative to .input-area */
+  right: 25px;
+  bottom: 25px;
+  height: 35px; /* Adjust button size */
+  transition: background-color 0.2s;
 }
 
-button:disabled {
+button[type="submit"]:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+button[type="submit"]:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
-}
-
-.response-container {
-  margin-top: 30px;
-  padding: 20px;
-  border: 1px solid #007bff;
-  border-radius: 8px;
-  background-color: #e9f7ff;
-  color: #333;
-  text-align: left;
-  max-width: 600px;
-  width: 100%;
-}
-
-.response-container h2 {
-  color: #007bff;
-  margin-top: 0;
-  font-size: 1.5em;
-}
-
-.response-container p {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.error-message {
-  color: red;
-  margin-top: 20px;
 }
