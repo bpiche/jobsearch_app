@@ -16,3 +16,7 @@ pubkey.txt
 # Dockerfile specific ignores
 Dockerfile
 start.sh # This will be copied to /app, so ignore root one
+
+# Node.js and Frontend
+frontend/node_modules/
+frontend/dist/

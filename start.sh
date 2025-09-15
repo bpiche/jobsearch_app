@@ -3,6 +3,10 @@
 # Activate the virtual environment
 source /home/bpiche/.venv/venv/bin/activate
 
+# Build the React frontend
+echo "Building React frontend..."
+cd frontend && npm install && npm run build && cd ..
+
 # Check if Ollama server is already running
 if ! pgrep -x "ollama" > /dev/null; then
   echo "Starting Ollama server in the background..."
