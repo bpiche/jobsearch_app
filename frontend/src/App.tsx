@@ -72,12 +72,18 @@ function App() {
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               placeholder="Enter your job search query..."
               disabled={loading}
               rows={3}
             />
             <button type="submit" disabled={loading}>
-              {loading ? 'Sending...' : 'Send'}
+              {loading ? 'Sending...' : <span style={{ color: 'white' }}>✉️</span>}
             </button>
           </form>
         </div>

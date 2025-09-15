@@ -10,7 +10,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 80vh;
+  min-height: 80vh; /* Reverted to original fixed height */
   font-size: calc(10px + 2vmin);
   width: 100%;
 }
@@ -25,12 +25,12 @@ h1 {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 700px; /* Wider chat window */
-  height: 600px; /* Fixed height for chat window */
+  max-width: 700px; /* Reverted to original fixed max-width */
+  height: 600px; /* Reverted to original fixed height */
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow: hidden;
-  background-color: #f9f9f9; /* Light background for chat */
+  background-color: #f9f9f9;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -46,24 +46,25 @@ h1 {
 
 .message {
   display: flex;
-  padding: 10px 15px;
-  border-radius: 20px;
-  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 15px;
+  max-width: 70%;
   word-wrap: break-word;
-  color: #333; /* Default message color */
+  color: #333;
+  font-size: 0.8em; /* Reduced font size for messages */
 }
 
 .message.user {
   align-self: flex-end;
   background-color: #007bff;
   color: white;
-  border-bottom-right-radius: 5px; /* Tail for user messages */
+  border-bottom-right-radius: 5px;
 }
 
 .message.agent {
   align-self: flex-start;
   background-color: #ddd;
-  border-bottom-left-radius: 5px; /* Tail for agent messages */
+  border-bottom-left-radius: 5px;
 }
 
 .message.error {
@@ -80,21 +81,24 @@ h1 {
 
 .input-area {
   display: flex;
+  align-items: center;
   padding: 15px;
   background-color: #fff;
   border-top: 1px solid #eee;
-  position: relative; /* For button positioning */
+  position: relative;
+  gap: 10px;
 }
 
 textarea {
   flex-grow: 1;
-  padding: 10px 40px 10px 10px; /* Space for button */
+  padding: 10px 100px 10px 15px;
   border-radius: 20px;
   border: 1px solid #ccc;
-  font-size: 1em;
-  resize: none; /* Prevent manual resizing */
-  margin-right: -45px; /* Overlap with button */
+  font-size: 0.8em; /* Reduced font size for input box */
+  font-family: inherit;
+  resize: none;
   box-sizing: border-box;
+  width: calc(100% - 70px);
 }
 
 button[type="submit"] {
@@ -105,10 +109,10 @@ button[type="submit"] {
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.9em;
-  position: absolute; /* Position relative to .input-area */
-  right: 25px;
-  bottom: 25px;
-  height: 35px; /* Adjust button size */
+  position: absolute;
+  right: 30px; /* Doubled margin from the right */
+  bottom: 30px; /* Doubled margin from the bottom */
+  height: 38px;
   transition: background-color 0.2s;
 }
 
