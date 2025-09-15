@@ -1,8 +1,9 @@
-import ollama
+from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import Runnable
 from langgraph.graph import StateGraph, END
+from dataclasses import dataclass
 
 # Define the Ollama model to use.
 # User should ensure this model is downloaded and running via Ollama server.
@@ -11,6 +12,7 @@ from langgraph.graph import StateGraph, END
 OLLAMA_MODEL = "llama3" # Example: "llama3", "tinyllama"
 
 # --- Agent State ---
+@dataclass
 class AgentState:
     """
     Represents the state of our agent.
@@ -25,12 +27,8 @@ def setup_llm_chain() -> Runnable:
     Sets up the LLM chain with a prompt and Ollama model.
     """
     try:
-        ollama_llm = ollama.Client(host='http://localhost:11434')
-        # Check if model is available (rudimentary check, actual inference will confirm)
-        # Note: A more robust check might involve listing models or a test inference
-        models = ollama_llm.list()['models']
-        if not any(model['name'].startswith(OLLAMA_MODEL) for model in models):
-            print(f"Warning: Ollama model '{OLLAMA_MODEL}' not found. Please pull it using `ollama pull {OLLAMA_MODEL}`.")
+        # Use ChatOllama for better integration with LangChain
+        ollama_llm = ChatOllama(model=OLLAMA_MODEL, base_url='http://localhost:11434')
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -38,7 +36,7 @@ def setup_llm_chain() -> Runnable:
                 ("user", "{query}")
             ]
         )
-        return prompt | ollama_llm.chat | StrOutputParser()
+        return prompt | ollama_llm | StrOutputParser()
     except Exception as e:
         print(f"Error setting up Ollama LLM: {e}")
         return None

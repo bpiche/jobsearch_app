@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from jobsearch_app.agent import create_agent_workflow, AgentState
 import threading
 import time
+import ollama
 
 app = Flask(__name__)
 agent_app = create_agent_workflow()
@@ -17,7 +18,8 @@ def predict():
     print(f"Received query: {query}")
     
     initial_state = AgentState(query=query, response="")
-    final_state = agent_app.invoke(initial_state)
+    final_state_dict = agent_app.invoke(initial_state)
+    final_state = AgentState(**final_state_dict)
 
     if final_state.error:
         print(f"Agent Error: {final_state.error}")
