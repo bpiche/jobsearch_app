@@ -1,0 +1,18 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+/opt/venv/  # Local virtual environment
+
+# Sensitive files
+pubkey.txt
+
+# Dockerfile specific ignores
+Dockerfile
+start.sh # This will be copied to /app, so ignore root one

@@ -1,0 +1,14 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+/opt/venv/  # Docker virtual environment path
+
+# Sensitive files
+pubkey.txt
