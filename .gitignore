@@ -16,3 +16,6 @@ pubkey.txt
 # Node.js and Frontend
 frontend/node_modules/
 frontend/dist/
+
+# Data directory
+data/
