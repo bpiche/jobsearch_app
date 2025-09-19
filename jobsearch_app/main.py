@@ -1,12 +1,25 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, url_for
-from jobsearch_app.agent import create_agent_workflow, AgentState
+from jobsearch_app.agent import AgentState, create_dataframe_agent
+from jobsearch_app.data_processor import load_all_jsonl_data, DATA_DIR
 import threading
 import time
 import ollama
 import os
 
 app = Flask(__name__, static_folder='../frontend/dist', template_folder='../frontend/dist')
-agent_app = create_agent_workflow()
+import os
+import pandas as pd # Import pandas because the agent works with DataFrames
+
+# Load and sample data using the custom data_processor
+# Use data_processor.DATA_DIR for the path as defined in data_processor.py
+df = load_all_jsonl_data(os.path.join(os.path.dirname(__file__), DATA_DIR))
+
+# Sample 10% of the DataFrame for quicker validation, uncomment if needed for performance
+# sampled_df = df.sample(frac=0.1, random_state=42)
+# print(f"Sampled down to {len(sampled_df)} records (10% of original) for quicker validation.")
+# agent_app = create_dataframe_agent(sampled_df)
+
+agent_app = create_dataframe_agent(df)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -30,16 +43,17 @@ def predict_api():
 
     print(f"Received query: {query}")
     
-    initial_state = AgentState(query=query, response="")
-    final_state_dict = agent_app.invoke(initial_state)
-    final_state = AgentState(**final_state_dict)
+    try:
+        # The dataframe agent expects 'input' key in the invoke method
+        # and returns a dictionary with 'output' key
+        response = agent_app.invoke({"input": query})
+        output = response.get('output', str(response)) # Ensure we get the 'output' or full response
 
-    if final_state.error:
-        print(f"Agent Error: {final_state.error}")
-        return jsonify({"error": final_state.error}), 500
-    else:
-        print(f"Agent Response: {final_state.response}")
-        return jsonify({"response": final_state.response})
+        print(f"Agent Response: {output}")
+        return jsonify({"response": output})
+    except Exception as e:
+        print(f"Agent Error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 def check_ollama_status():
     while True:

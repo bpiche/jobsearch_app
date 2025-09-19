@@ -7,7 +7,8 @@ DATA_DIR = "./data/"
 
 def load_all_jsonl_data(data_dir):
     all_data = []
-    file_numbers = range(1, 6) # part1.jsonl to part5.jsonl
+    file_numbers = range(1, 2) # part1.jsonl to part5.jsonl
+    # file_numbers = range(1, 1) # part1.jsonl to part5.jsonl
 
     # Ensure the data directory exists, though files are already expected to be there
     if not os.path.isdir(data_dir):
