@@ -24,7 +24,7 @@ class AgentState:
 def create_dataframe_agent(df: pd.DataFrame):
     # Initialize Ollama LLM as a ChatModel
     # Ensure Ollama server is running and `llama3` model is pulled (e.g., `ollama pull llama3`)
-    llm = ChatOllama(model="llama3") 
+    llm = ChatOllama(model="mistral:7b-instruct-q4_K_M") 
     agent = create_pandas_dataframe_agent(
         llm, 
         df, 
@@ -33,6 +33,8 @@ def create_dataframe_agent(df: pd.DataFrame):
         allow_dangerous_code=True,
         handle_parsing_errors=True # Add error handling
     )
+    # print the model name to verify correct initialization
+    print(f"Initialized agent with model: {llm.model}")
     return agent
 
 # Main entry point for the agent if run directly (for testing)

@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import os
+import time
 from tqdm import tqdm
 
 DATA_DIR = "./data/"
@@ -48,18 +49,27 @@ def load_all_jsonl_data(data_dir):
             df_to_flatten = pd.concat([df_to_flatten, normalized_df], axis=1)
         return df_to_flatten
 
+    print(f"Starting dictionary column flattening at {time.ctime()}...")
+    flattening_start_time = time.time()
+
     # Identify and flatten columns that contain dictionaries
-    for col in df.columns:
+    # Use tqdm to show progress for each column being flattened
+    for col in tqdm(df.columns.tolist(), desc="Flattening dictionary columns"):
         # Check if the column contains dictionaries. Sample the first few non-nulls.
         # Use .apply(type) == dict to check for actual dict types efficiently.
         if df[col].apply(lambda x: isinstance(x, dict)).any():
-            print(f"Flattening column: {col}")
+            # print(f"Flattening column: {col}") # This print is now redundant with tqdm desc update
             df = flatten_dict_column(df, col)
             
     # Handle nested GPS dictionary if it exists after initial flattening
-    if 'location_gps' in df.columns:
+    # This might need to be re-evaluated if 'location_gps' is itself a flattened column containing dicts.
+    # For now, let's keep it explicit as it's a known nested dictionary issue.
+    if 'location_gps' in df.columns and df['location_gps'].apply(lambda x: isinstance(x, dict)).any():
         print("Flattening nested 'location_gps' column...")
         df = flatten_dict_column(df, 'location_gps')
+
+    flattening_end_time = time.time()
+    print(f"Finished dictionary column flattening at {time.ctime()}. Took {flattening_end_time - flattening_start_time:.2f} seconds.")
 
     return df
 
