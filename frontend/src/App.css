@@ -1,8 +1,52 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #333333; /* Dark background color for the fade */
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%; /* Ensure root takes full width after body/html */
+  min-height: 100vh; /* Ensure root takes full height */
+  margin: 0 auto; /* Center content within the full width */
+  padding: 0;
   text-align: center;
+  position: relative;
+  background-image: url('/business_background.jpg');
+  background-size: cover;
+  background-position: center bottom; /* Align image to bottom for better visibility with fade */
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#root::after { /* Overlay gradient for fade effect */
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(51, 51, 51, 1) 0%, rgba(51, 51, 51, 1) 33%, rgba(51, 51, 51, 0) 100%); /* Fade to dark background color */
+  z-index: 0; /* Place above background image but below content */
+}
+
+/* The actual App content container */
+.App {
+  width: 100%;
+  z-index: 1; /* Ensure app content is above the background and gradient */
+  padding: 2rem;
+  max-width: 1280px; /* Constrain main content width */
+  margin: 0 auto; /* Center the app content */
+  display: flex; /* Make App a flex container */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically */
 }
 
 .App-header {
@@ -10,28 +54,47 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 80vh; /* Reverted to original fixed height */
+  min-height: 20vh; /* Reduce min-height to ensure title is visible */
   font-size: calc(10px + 2vmin);
   width: 100%;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 20px; /* Add some space below the header */
 }
 
 h1 {
   font-size: 2.5em; /* Adjusted for chat interface */
   margin-bottom: 20px;
   margin-top: 0;
+  background-color: rgba(240, 240, 240, 0.9); /* Slightly less transparent for better visibility against dark fade */
+  padding: 10px 20px;
+  border-radius: 25px; /* Lozenge shape */
+  color: #333; /* Darker text for readability against light grey lozenge */
+  backdrop-filter: blur(5px); /* Optional: blur background behind the lozenge */
+  /* Messy splotchy black border effect */
+  box-shadow: 
+    0 0 0 2px rgba(0, 0, 0, 0.8), /* Inner black border */
+    0 0 0 6px rgba(0, 0, 0, 0.4), /* Slightly larger, blurred effect */
+    0 0 0 10px rgba(0, 0, 0, 0.2); /* Even larger, more blurred effect */
 }
 
 .chat-window {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 700px; /* Reverted to original fixed max-width */
-  height: 600px; /* Reverted to original fixed height */
+  max-width: 700px;
+  height: 600px;
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow: hidden;
   background-color: #f9f9f9;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.1),
+    0 0 0 2px rgba(0, 0, 0, 0.8), /* Inner black border */
+    0 0 0 6px rgba(0, 0, 0, 0.4), /* Slightly larger, blurred effect */
+    0 0 0 10px rgba(0, 0, 0, 0.2); /* Even larger, more blurred effect */
+  position: relative; /* Needed for z-index context */
+  z-index: 2; /* Ensure chat window is above the gradient */
 }
 
 .messages-container {
@@ -99,6 +162,8 @@ textarea {
   resize: none;
   box-sizing: border-box;
   width: calc(100% - 70px);
+  background-color: #eeeeee; /* Lighter grey for input field */
+  color: #333; /* Darker text for readability */
 }
 
 button[type="submit"] {
@@ -114,6 +179,9 @@ button[type="submit"] {
   bottom: 30px; /* Doubled margin from the bottom */
   height: 38px;
   transition: background-color 0.2s;
+  display: flex; /* Use flexbox for centering content */
+  align-items: center; /* Vertically center content */
+  justify-content: center; /* Horizontally center content */
 }
 
 button[type="submit"]:hover:not(:disabled) {
@@ -123,4 +191,25 @@ button[type="submit"]:hover:not(:disabled) {
 button[type="submit"]:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.social-links {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100; /* Ensure links are above other content */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-icon {
+  width: 30px; /* Adjust size as needed */
+  height: 30px;
+  filter: invert(100%); /* Make SVG white */
+}
+
+.email-icon {
+  font-size: 30px;
+  line-height: 1; /* Adjust line-height to prevent extra space */
 }
