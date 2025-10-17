@@ -72,27 +72,16 @@ A local SQLite database containing AI job dataset is set up using a dedicated Do
 
 From the project's root directory:
 ```bash
-docker build -t sqlite-db database_container
+docker build -t sqlite-db -f database_container/Dockerfile .
 ```
 
 **b. Run the SQLite Docker Container:**
 
-This will start the database container and mount the `data/` directory to persist the database file. The container will automatically restart if stopped.
+This will start the database container, which now includes the `ai_jobs.db` database automatically populated from `ai_job_dataset.csv` during the build process. It mounts the `data/` directory to persist the database file, and the container will automatically restart if stopped.
 ```bash
 docker run -d --name sqlite-jobsearch -v $(pwd)/data:/app/data --restart unless-stopped sqlite-db
 ```
 
-**c. Import Data into SQLite Database:**
-
-Once the container is running, import the `ai_job_dataset.csv` into the `ai_jobs.db` database.
-```bash
-docker exec -it sqlite-jobsearch bash -c 'csvsql --db sqlite:///ai_jobs.db --insert ai_job_dataset.csv'
-```
-You can verify the data import and test queries using:
-```bash
-docker exec -it sqlite-jobsearch sqlite3 ai_jobs.db "SELECT COUNT(*) FROM ai_job_dataset;"
-docker exec -it sqlite-jobsearch sqlite3 ai_jobs.db "SELECT * FROM ai_job_dataset LIMIT 3;"
-```
 
 #### 5. Run the Flask Application (Local)
 
