@@ -26,6 +26,7 @@ class AgentState:
     query: str
     response: str
     error: str = None # To handle potential errors
+    next_node: str = None # To store the next node determined by the router
 
 # --- LLM and Prompt ---
 def setup_llm_chain() -> Runnable:
@@ -95,17 +96,18 @@ def call_sql_agent(state: AgentState) -> AgentState:
         return state
 
 # --- Router ---
-def route_query(state: AgentState) -> str:
+def route_query(state: AgentState) -> AgentState:
     """
-    Decides whether to route the query to the SQL agent or the general LLM.
+    Decides whether to route the query to the SQL agent or the general LLM and updates state.next_node.
     """
     sql_keywords = ["database", "sql", "query", "table", "schema", "count", "list", "top", "sales", "group by", "join"]
     
     # Check if the query contains any SQL-related keywords
     if any(keyword in state.query.lower() for keyword in sql_keywords):
-        return "sql_agent_tool"
+        state.next_node = "sql_agent_tool"
     else:
-        return "llm_response"
+        state.next_node = "llm_response"
+    return state
 
 # --- Graph Definition ---
 def create_agent_workflow() -> StateGraph:
@@ -117,19 +119,23 @@ def create_agent_workflow() -> StateGraph:
     # Define the nodes
     workflow.add_node("llm_response", call_llm)
     workflow.add_node("sql_agent_tool", call_sql_agent)
+    workflow.add_node("router", route_query)
 
-    # Define the entry point and conditional edge
-    workflow.set_entry_point("llm_response") # Start with LLM to decide routing
+    # Define the entry point
+    workflow.set_entry_point("router")
+
+    # Define the conditional edges from the router
     workflow.add_conditional_edges(
-        "llm_response", # From the LLM response (or initial query processing)
-        route_query,
+        "router",
+        lambda state: state.next_node, # This assumes route_query sets a 'next_node' in the state
         {
             "sql_agent_tool": "sql_agent_tool",
-            "llm_response": "llm_response" # If it's still LLM, it means it was a general query
+            "llm_response": "llm_response"
         }
     )
     
-    # SQL agent leads to END or potentially back to LLM for synthesis
+    # Both llm_response and sql_agent_tool lead to END
+    workflow.add_edge("llm_response", END)
     workflow.add_edge("sql_agent_tool", END)
 
     app = workflow.compile()
