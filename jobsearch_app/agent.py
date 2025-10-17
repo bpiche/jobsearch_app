@@ -5,6 +5,12 @@ from langchain_core.runnables import Runnable
 from langgraph.graph import StateGraph, END
 from dataclasses import dataclass
 
+# Langchain SQL imports
+from langchain_community.utilities import SQLDatabase
+from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from langchain_community.agent_toolkits.sql.base import create_sql_agent
+from langchain.agents import AgentExecutor
+
 # Define the Ollama model to use.
 # User should ensure this model is downloaded and running via Ollama server.
 # For 8GB VRAM (Nvidia 3070ti), consider a smaller model like 'llama3' (requires ~4.7GB) or 'tinyllama'
@@ -41,6 +47,21 @@ def setup_llm_chain() -> Runnable:
         print(f"Error setting up Ollama LLM: {e}")
         return None
 
+# --- SQL Database Setup ---
+def setup_sql_agent(llm) -> AgentExecutor:
+    """
+    Sets up the Langchain SQL agent.
+    """
+    # SQLite database file is located in the data/ directory
+    db = SQLDatabase.from_uri("sqlite:///./data/ai_jobs.db")
+    toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+    sql_agent = create_sql_agent(
+        llm=llm,
+        toolkit=toolkit,
+        verbose=True
+    )
+    return sql_agent
+
 # --- Nodes ---
 def call_llm(state: AgentState) -> AgentState:
     """
@@ -59,6 +80,33 @@ def call_llm(state: AgentState) -> AgentState:
         state.error = f"Error during LLM inference: {e}"
         return state
 
+def call_sql_agent(state: AgentState) -> AgentState:
+    """
+    Calls the SQL agent with the user's query and updates the state.
+    """
+    llm = ChatOllama(model=OLLAMA_MODEL, base_url='http://localhost:11434')
+    sql_agent_executor = setup_sql_agent(llm)
+    try:
+        response = sql_agent_executor.run(state.query)
+        state.response = response
+        return state
+    except Exception as e:
+        state.error = f"Error during SQL agent execution: {e}"
+        return state
+
+# --- Router ---
+def route_query(state: AgentState) -> str:
+    """
+    Decides whether to route the query to the SQL agent or the general LLM.
+    """
+    sql_keywords = ["database", "sql", "query", "table", "schema", "count", "list", "top", "sales", "group by", "join"]
+    
+    # Check if the query contains any SQL-related keywords
+    if any(keyword in state.query.lower() for keyword in sql_keywords):
+        return "sql_agent_tool"
+    else:
+        return "llm_response"
+
 # --- Graph Definition ---
 def create_agent_workflow() -> StateGraph:
     """
@@ -68,12 +116,21 @@ def create_agent_workflow() -> StateGraph:
 
     # Define the nodes
     workflow.add_node("llm_response", call_llm)
+    workflow.add_node("sql_agent_tool", call_sql_agent)
 
-    # Define the entry point
-    workflow.set_entry_point("llm_response")
-
-    # Define the end point
-    workflow.set_finish_point("llm_response")
+    # Define the entry point and conditional edge
+    workflow.set_entry_point("llm_response") # Start with LLM to decide routing
+    workflow.add_conditional_edges(
+        "llm_response", # From the LLM response (or initial query processing)
+        route_query,
+        {
+            "sql_agent_tool": "sql_agent_tool",
+            "llm_response": "llm_response" # If it's still LLM, it means it was a general query
+        }
+    )
+    
+    # SQL agent leads to END or potentially back to LLM for synthesis
+    workflow.add_edge("sql_agent_tool", END)
 
     app = workflow.compile()
     return app

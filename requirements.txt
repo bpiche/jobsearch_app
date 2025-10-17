@@ -3,3 +3,5 @@ langgraph
 ollama
 Flask
 langchain-community
+SQLAlchemy
+tiktoken
