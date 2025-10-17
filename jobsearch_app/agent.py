@@ -15,7 +15,7 @@ from langchain.agents import AgentExecutor
 # User should ensure this model is downloaded and running via Ollama server.
 # For 8GB VRAM (Nvidia 3070ti), consider a smaller model like 'llama3' (requires ~4.7GB) or 'tinyllama'
 # You can pull models using `ollama pull llama3` or `ollama pull tinyllama`
-OLLAMA_MODEL = "llama3" # Example: "llama3", "tinyllama"
+OLLAMA_MODEL = "gemma3" # Example: "llama3.1", "mistral"
 
 # --- Agent State ---
 @dataclass
