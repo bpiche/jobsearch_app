@@ -62,7 +62,7 @@ ollama pull llama3.1
 # Or a smaller model, e.g.:
 ollama pull gemma3
 ```
-**Note**: The `jobsearch_app/agent.py` file is configured to use the `llama3` model by default (`OLLAMA_MODEL = "llama3"`). If you pull a different model (e.g., `tinyllama`), you must update this variable in `agent.py` accordingly.
+**Note**: The `jobsearch_app/agent.py` file is configured to use the `gemma3` model by default (`OLLAMA_MODEL = "gemma3"`). If you pull a different model (e.g., `llama3.1`), you must update this variable in `agent.py` accordingly.
 
 #### 4. SQL Database Setup (Local - SQLite in Docker)
 
@@ -158,7 +158,5 @@ curl -X POST -H "Content-Type: application/json" -d '{"query": "How many rows ar
 ```
 
 The backend will return a JSON response containing the agent's generated answer.
-
-## UI Screenshot
 
 ![Screenshot of the Job Search AI Assistant UI](screenshot.png)
