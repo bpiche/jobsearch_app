@@ -133,3 +133,5 @@ curl -X POST -H "Content-Type: application/json" -d '{"query": "How many rows ar
 ```
 
 The application will return a JSON response containing the agent's generated answer.
+
+![Screenshot of the Job Search AI Assistant UI](screenshot.png)
