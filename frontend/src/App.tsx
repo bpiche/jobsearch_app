@@ -83,11 +83,25 @@ function App() {
               rows={3}
             />
             <button type="submit" disabled={loading}>
-              {loading ? 'Sending...' : <span style={{ color: 'white' }}>✉️</span>}
+              {loading ? '💭' : <span style={{ color: 'white' }}>✉️</span>}
             </button>
           </form>
         </div>
       </header>
+      <div className="social-links">
+        <a href="https://www.last.fm/user/bpiche" target="_blank" rel="noopener noreferrer">
+          <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/lastdotfm.svg" alt="Last.fm" className="social-icon" />
+        </a>
+        <a href="https://www.linkedin.com/in/benhpiche" target="_blank" rel="noopener noreferrer">
+          <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/linkedin.svg" alt="LinkedIn" className="social-icon" />
+        </a>
+        <a href="https://www.github.com/bpiche" target="_blank" rel="noopener noreferrer">
+          <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/github.svg" alt="GitHub" className="social-icon" />
+        </a>
+        <a href="mailto:ben.h.piche@gmail.com" target="_blank" rel="noopener noreferrer">
+          <span className="email-icon">✉️</span>
+        </a>
+      </div>
     </div>
   );
 }
