@@ -1,8 +1,52 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #f9f9f9; /* Set a default background color for the fade */
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%; /* Ensure root takes full width after body/html */
+  min-height: 100vh; /* Ensure root takes full height */
+  margin: 0 auto; /* Center content within the full width */
+  padding: 0;
   text-align: center;
+  position: relative;
+  background-image: url('/business_background.jpg');
+  background-size: cover;
+  background-position: center bottom; /* Align image to bottom for better visibility with fade */
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#root::after { /* Overlay gradient for fade effect */
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(249, 249, 249, 1) 0%, rgba(249, 249, 249, 1) 33%, rgba(249, 249, 249, 0) 100%);
+  z-index: 0; /* Place above background image but below content */
+}
+
+/* The actual App content container */
+.App {
+  width: 100%;
+  z-index: 1; /* Ensure app content is above the background and gradient */
+  padding: 2rem;
+  max-width: 1280px; /* Constrain main content width */
+  margin: 0 auto; /* Center the app content */
+  display: flex; /* Make App a flex container */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically */
 }
 
 .App-header {
@@ -10,28 +54,38 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 80vh; /* Reverted to original fixed height */
+  min-height: 20vh; /* Reduce min-height to ensure title is visible */
   font-size: calc(10px + 2vmin);
   width: 100%;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 20px; /* Add some space below the header */
 }
 
 h1 {
   font-size: 2.5em; /* Adjusted for chat interface */
   margin-bottom: 20px;
   margin-top: 0;
+  background-color: rgba(240, 240, 240, 0.7); /* Light grey with some transparency */
+  padding: 10px 20px;
+  border-radius: 25px; /* Lozenge shape */
+  color: #333; /* Darker text for readability against light grey */
+  backdrop-filter: blur(5px); /* Optional: blur background behind the lozenge */
 }
 
 .chat-window {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 700px; /* Reverted to original fixed max-width */
-  height: 600px; /* Reverted to original fixed height */
+  max-width: 700px;
+  height: 600px;
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow: hidden;
   background-color: #f9f9f9;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* Needed for z-index context */
+  z-index: 2; /* Ensure chat window is above the gradient */
 }
 
 .messages-container {
