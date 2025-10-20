@@ -26,7 +26,9 @@ services:
       - "11434:11434" # Ollama server
     environment:
       TAVILY_API_KEY: ${TAVILY_API_KEY} # Ensure TAVILY_API_KEY is available in the container
-      OLLAMA_HOST: "http://ollama:11434" # If Ollama was a separate service, this would be ollama:11434
+      OLLAMA_HOST: "http://localhost:11434" # Ollama installed directly in this container, so it's localhost
+      OLLAMA_MODEL: "gpt-oss:120b-cloud" # Explicitly set the cloud model for agent
     depends_on:
       - db
     restart: unless-stopped
+    command: ["./start.sh", "--cloud"] # Pass --cloud flag to start.sh script

@@ -37,15 +37,9 @@ WORKDIR /app/frontend
 RUN npm install
 WORKDIR /app
 
-# Pull the gemma3 model during the build process
-# This ensures the model is available when the container starts.
-# Start Ollama server temporarily in background to pull model during build
-RUN (ollama serve &) && \
-    /bin/bash -c 'until ollama list | grep -q "gemma3"; do echo "Waiting for Ollama to start..."; sleep 5; done' && \
-    ollama pull gemma3 && \
-    pkill ollama || true
-# Note: This increases image size. For dynamic model loading, consider handling in start.sh only.
-
+# We will use a cloud model, so no need to pull gemma3 locally during build.
+# The `ollama run gpt-oss:120b-cloud` command will be handled by start.sh or docker-compose.yml
+# In cases using other images, ollama run gpt-oss:120b-cloud, but it won't be run by this Dockerfile!
 # Copy the startup script
 COPY start.sh .
 # Make the startup script executable

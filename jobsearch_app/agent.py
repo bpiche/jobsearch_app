@@ -31,7 +31,8 @@ from langchain.agents import AgentExecutor
 # User should ensure this model is downloaded and running via Ollama server.
 # For 8GB VRAM (Nvidia 3070ti), consider a smaller model like 'llama3' (requires ~4.7GB) or 'tinyllama'
 # You can pull models using `ollama pull llama3` or `ollama pull tinyllama`
-OLLAMA_MODEL = "gemma3" # Example: "llama3.1", "mistral"
+# OLLAMA_MODEL can be set via environment variable, defaulting to "gemma3"
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma3") # Example: "llama3.1", "mistral"
 
 # --- Agent State ---
 @dataclass
@@ -54,9 +55,11 @@ def setup_llm_chain() -> Runnable:
     """
     Sets up the LLM chain with a prompt and Ollama model.
     """
+    # Print the model being used for debugging/verification
+    print(f"Using Ollama model: {OLLAMA_MODEL} at {OLLAMA_HOST}")
     try:
         # Use ChatOllama for better integration with LangChain
-        ollama_llm = ChatOllama(model=OLLAMA_MODEL, base_url='http://localhost:11434')
+        ollama_llm = ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_HOST)
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -106,7 +109,8 @@ def call_sql_agent(state: AgentState) -> AgentState:
     """
     Calls the SQL agent with the user's query and updates the state.
     """
-    llm = ChatOllama(model=OLLAMA_MODEL, base_url='http://localhost:11434')
+    # Make sure to use the configured OLLAMA_MODEL and OLLAMA_HOST
+    llm = ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_HOST)
     sql_agent_executor = setup_sql_agent(llm)
     try:
         response = sql_agent_executor.run(state.query)
