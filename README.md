@@ -87,7 +87,20 @@ docker run -d --name sqlite-jobsearch -v $(pwd)/data:/app/data --restart unless-
 
 Ensure your virtual environment is activated and the SQLite Docker container is running. Then, from the project's root directory, run the Flask application.
 
-**From the project's root directory:**
+**Important Note on `start.sh` and API Keys:**
+The `start.sh` script, located in the root directory, is designed to set up the Python virtual environment, export necessary environment variables (like `TAVILY_API_KEY`), and start the Flask backend and React frontend sequentially. It is the recommended way to run the application locally if you intend to use the Search Agent, as it handles the `TAVILY_API_KEY` export automatically. If you run the Flask application manually (as shown below), you must ensure the `TAVILY_API_KEY` is exported in your environment *before* starting the Flask app.
+
+**Option 1: Using `start.sh` (Recommended for full functionality)**
+
+From the project's root directory:
+```bash
+bash start.sh
+```
+This script will activate the Python environment, export environment variables, start the Flask backend, and then launch the React frontend.
+
+**Option 2: Manual execution of Flask Application**
+
+From the project's root directory (after manually activating the virtual environment and exporting `TAVILY_API_KEY` if using the Search Agent):
 
 ```bash
 source ~/.venv/venv/bin/activate
