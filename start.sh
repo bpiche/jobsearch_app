@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Activate the virtual environment
-source /Users/bpiche/.venv/venv/bin/activate
+source /home/bpiche/.venv/venv/bin/activate
 
 # Load environment variables from .env
 set -a
