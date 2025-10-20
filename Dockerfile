@@ -5,7 +5,8 @@ FROM ubuntu:latest
 ENV PYTHONUNBUFFERED 1
 ENV VIRTUAL_ENV /opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV TAVILY_API_KEY="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"
+ARG TAVILY_API_KEY
+ENV TAVILY_API_KEY=$TAVILY_API_KEY
 
 # Install system dependencies
 RUN apt-get update && \
@@ -27,10 +28,10 @@ COPY jobsearch_app jobsearch_app/
 RUN python3 -m venv "$VIRTUAL_ENV" && \
     pip install --no-cache-dir -r requirements.txt
 
-# Pull the llama3 model during the build process
+# Pull the gemma3 model during the build process
 # This ensures the model is available when the container starts.
 # Note: This increases image size. For dynamic model loading, remove this and handle in start.sh
-RUN ollama pull llama3
+RUN ollama pull gemma3
 
 # Copy the startup script
 COPY start.sh .

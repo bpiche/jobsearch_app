@@ -148,4 +148,34 @@ curl -X POST -H "Content-Type: application/json" -d '{"query": "How many rows ar
 
 The backend will return a JSON response containing the agent's generated answer.
 
+### AI Agent Capabilities
+
+This application features a multi-agent system powered by LangChain and LangGraph, capable of routing user queries to specialized agents based on detected keywords. This allows for more targeted and effective responses to different types of job search inquiries.
+
+#### 1. General LLM Agent
+
+*   **Purpose:** Handles general job search queries, providing comprehensive answers based on its foundational knowledge. This is the default agent when no specific keywords for other agents are detected.
+*   **Interaction:** Simply ask your job search-related questions naturally.
+*   **Example Query:** "What are the common skills required for a machine learning engineer in 2025 and what are the top companies hiring?"
+
+#### 2. SQL Agent
+
+*   **Purpose:** Interacts with the `ai_job_dataset` SQLite database to answer data-specific questions. This agent is ideal for extracting structured information, performing counts, or listing data entries.
+*   **Interaction:** Use keywords like "database", "sql", "query", "table", "count", "list", "top", "group by", or "join" in your questions. You can ask about the database directly.
+*   **Example Queries:**
+    *   "How many jobs are in the ai_job_dataset table?"
+    *   "List the top 5 companies by job count in the database."
+    *   "Show me the schema of the ai_job_dataset table."
+
+#### 3. Search Agent
+
+*   **Purpose:** Conducts real-time web searches using the Tavily API to fetch current information, news, or broader context that might not be available in the LLM's training data or the local database.
+*   **Interaction:** Trigger this agent by including keywords such as "search", "find information", "latest news", "what is", "how to", "current events", "who is", "when did", "forecast", or "weather" in your query.
+*   **Example Queries:**
+    *   "Search for the latest trends in remote software development jobs."
+    *   "What is the average salary for a data scientist in New York City?"
+    *   "Find information about new AI regulations."
+
+---
+
 ![Screenshot of the Job Search AI Assistant UI](screenshot.png)
