@@ -31,7 +31,7 @@ from langchain.agents import AgentExecutor
 # User should ensure this model is downloaded and running via Ollama server.
 # For 8GB VRAM (Nvidia 3070ti), consider a smaller model like 'llama3' (requires ~4.7GB) or 'tinyllama'
 # You can pull models using `ollama pull llama3` or `ollama pull tinyllama`
-OLLAMA_MODEL = "gemma3" # Example: "llama3.1", "mistral"
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL") # Example: "llama3.1", "mistral"
 
 # --- Agent State ---
 @dataclass
@@ -48,7 +48,7 @@ class AgentState:
 # --- LLM and Prompt ---
 # Ensure TAVILY_API_KEY is available when this module is loaded
 assert os.getenv("TAVILY_API_KEY") is not None, "TAVILY_API_KEY environment variable must be set."
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST")
 
 def setup_llm_chain() -> Runnable:
     """
@@ -56,7 +56,7 @@ def setup_llm_chain() -> Runnable:
     """
     try:
         # Use ChatOllama for better integration with LangChain
-        ollama_llm = ChatOllama(model=OLLAMA_MODEL, base_url='http://localhost:11434')
+        ollama_llm = ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_HOST)
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -106,7 +106,7 @@ def call_sql_agent(state: AgentState) -> AgentState:
     """
     Calls the SQL agent with the user's query and updates the state.
     """
-    llm = ChatOllama(model=OLLAMA_MODEL, base_url='http://localhost:11434')
+    llm = ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_HOST)
     sql_agent_executor = setup_sql_agent(llm)
     try:
         response = sql_agent_executor.run(state.query)

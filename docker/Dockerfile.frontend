@@ -1,0 +1,22 @@
+# Use an official Node.js image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app/frontend
+
+# Copy package.json and package-lock.json
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the frontend application code
+COPY frontend/ .
+
+# Expose the port that Vite runs on
+EXPOSE 5173
+
+# Command to run the development server
+# For development, we want to mount the source code, so `npm run dev` is appropriate.
+# For production, we would typically build the app and serve the static files.
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,76 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Ollama pulls 'gemma3' (as per agent.py default) at startup if not found
+    command: /bin/bash -c "ollama serve & ollama pull gemma3 && wait -n"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Deploy resources for GPU if available and needed
+  db:
+    build:
+      context: .
+      dockerfile: ./database_container/Dockerfile
+    container_name: sqlite-jobsearch
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "sqlite3 /app/data/ai_jobs.db 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.backend
+    container_name: jobsearch-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./jobsearch_app:/app/jobsearch_app
+      - ./requirements.txt:/app/requirements.txt
+      - ./data:/app/data
+    depends_on:
+      ollama:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    restart: on-failure
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.frontend
+    container_name: jobsearch-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Vite's proxy configuration in vite.config.ts will handle backend connections.
+    # For `npm run dev` in a container, this configuration might be slightly different
+    # than when running locally. The proxy in vite.config.ts should point to the
+    # docker-internal service name for the backend, i.e., `http://backend:5000`.
+    # A base URL for the API might be better handled directly in fetch calls or
+    # through a specific Vite environment variable if your frontend is designed for it.
+    # Assuming standard client-side fetches will use relative paths or the proxy.
+    environment:
+      VITE_BACKEND_URL: http://backend:5000 # Example: if frontend fetches directly to an env var
+    restart: on-failure
+
+volumes:
+  ollama_data:
