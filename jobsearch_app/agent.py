@@ -4,6 +4,22 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import Runnable
 from langgraph.graph import StateGraph, END
 from dataclasses import dataclass
+import os # Import os to access environment variables
+
+# Langchain Search imports
+from langchain_tavily import TavilySearch
+
+# Retrieve the Tavily API key from environment variables
+# This needs to be set in the shell before running the application,
+# or configured in the deployment environment.
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
+# Check if the API key is not set to provide a warning or error early
+if not TAVILY_API_KEY:
+    print("WARNING: TAVILY_API_KEY environment variable is not set. TavilySearch will likely fail.")
+    # For local testing, you might hardcode it here, but generally avoid this in production:
+    # TAVILY_API_KEY = "YOUR_DEV_TAVILY_KEY_HERE"
+    
 
 # Langchain SQL imports
 from langchain_community.utilities import SQLDatabase
@@ -27,8 +43,13 @@ class AgentState:
     response: str
     error: str = None # To handle potential errors
     next_node: str = None # To store the next node determined by the router
+    intermediate_steps: list = None # For agents that return intermediate steps
 
 # --- LLM and Prompt ---
+# Ensure TAVILY_API_KEY is available when this module is loaded
+assert os.getenv("TAVILY_API_KEY") is not None, "TAVILY_API_KEY environment variable must be set."
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
 def setup_llm_chain() -> Runnable:
     """
     Sets up the LLM chain with a prompt and Ollama model.
@@ -95,17 +116,56 @@ def call_sql_agent(state: AgentState) -> AgentState:
         state.error = f"Error during SQL agent execution: {e}"
         return state
 
+def call_search_agent(state: AgentState) -> AgentState:
+    """
+    Calls the Tavily search tool with the user's query and updates the state.
+    """
+    try:
+        # Pass the API key explicitly to ensure it's used
+        search_tool = TavilySearch(max_results=2, tavily_api_key=TAVILY_API_KEY) 
+        search_results = search_tool.invoke(state.query)
+        
+        # Process Tavily search results to extract relevant content for a better response
+        formatted_results = []
+        if search_results and 'results' in search_results:
+            for i, result in enumerate(search_results['results']):
+                title = result.get('title', 'No Title')
+                url = result.get('url', '#')
+                content = result.get('content', 'No content available.')
+                # Use markdown formatting to ensure newlines are respected in frontend rendering
+                # and add extra newlines for better visual separation between results.
+                formatted_results.append(
+                    f"**Result {i+1}: {title}**\nURL: {url}\n```\n{content}\n```\n\n"
+                )
+            state.response = "Here are some relevant search results:\n\n" + "".join(formatted_results).strip()
+        else:
+            state.response = "Could not find relevant search results."
+
+        return state
+    except Exception as e:
+        state.error = f"Error during search agent execution: {e}"
+        return state
+
 # --- Router ---
 def route_query(state: AgentState) -> AgentState:
     """
-    Decides whether to route the query to the SQL agent or the general LLM and updates state.next_node.
+    Decides whether to route the query to different agents and updates state.next_node.
     """
     sql_keywords = ["database", "sql", "query", "table", "schema", "count", "list", "top", "sales", "group by", "join"]
+    search_keywords = ["search", "find information", "latest news", "what is", "how to", "current events", "who is", "when did", "forecast", "weather"]
     
-    # Check if the query contains any SQL-related keywords
-    if any(keyword in state.query.lower() for keyword in sql_keywords):
+    query_lower = state.query.lower()
+
+    # Check for SQL-related keywords
+    if any(keyword in query_lower for keyword in sql_keywords):
+        print(f"Routing query '{state.query}' to: sql_agent_tool")
         state.next_node = "sql_agent_tool"
+    # Check for Search-related keywords
+    elif any(keyword in query_lower for keyword in search_keywords):
+        print(f"Routing query '{state.query}' to: search_agent_tool")
+        state.next_node = "search_agent_tool"
     else:
+        print(f"Routing query '{state.query}' to: llm_response")
         state.next_node = "llm_response"
     return state
 
@@ -119,6 +179,7 @@ def create_agent_workflow() -> StateGraph:
     # Define the nodes
     workflow.add_node("llm_response", call_llm)
     workflow.add_node("sql_agent_tool", call_sql_agent)
+    workflow.add_node("search_agent_tool", call_search_agent) # Add the new search agent node
     workflow.add_node("router", route_query)
 
     # Define the entry point
@@ -130,13 +191,15 @@ def create_agent_workflow() -> StateGraph:
         lambda state: state.next_node, # This assumes route_query sets a 'next_node' in the state
         {
             "sql_agent_tool": "sql_agent_tool",
-            "llm_response": "llm_response"
+            "llm_response": "llm_response",
+            "search_agent_tool": "search_agent_tool" # Add conditional edge for search agent
         }
     )
     
-    # Both llm_response and sql_agent_tool lead to END
+    # All agent specific nodes lead to END
     workflow.add_edge("llm_response", END)
     workflow.add_edge("sql_agent_tool", END)
+    workflow.add_edge("search_agent_tool", END) # Add edge for search agent
 
     app = workflow.compile()
     return app

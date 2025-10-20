@@ -1,7 +1,8 @@
-langchain
-langgraph
+langchain~=0.3.20
+langgraph~=0.4.0
 ollama
 Flask
-langchain-community
+langchain-community~=0.3.0
 SQLAlchemy
 tiktoken
+langchain-tavily~=0.1.0

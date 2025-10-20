@@ -5,6 +5,7 @@ FROM ubuntu:latest
 ENV PYTHONUNBUFFERED 1
 ENV VIRTUAL_ENV /opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV TAVILY_API_KEY="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"
 
 # Install system dependencies
 RUN apt-get update && \
