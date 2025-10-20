@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: ./database_container/Dockerfile
+    container_name: sqlite-jobsearch
+    volumes:
+      - ./data:/app/data
+    expose:
+      - "5432" # Not strictly necessary for SQLite, but aligns with Dockerfile
+    restart: unless-stopped
+    command: ["tail", "-f", "/dev/null"] # Keep container running
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TAVILY_API_KEY: ${TAVILY_API_KEY} # Pass TAVILY_API_KEY from host environment
+    container_name: jobsearch-ai-app
+    ports:
+      - "5000:5000" # Flask backend
+      - "5173:5173" # React frontend (Vite default)
+      - "11434:11434" # Ollama server
+    environment:
+      TAVILY_API_KEY: ${TAVILY_API_KEY} # Ensure TAVILY_API_KEY is available in the container
+      OLLAMA_HOST: "http://ollama:11434" # If Ollama was a separate service, this would be ollama:11434
+    depends_on:
+      - db
+    restart: unless-stopped

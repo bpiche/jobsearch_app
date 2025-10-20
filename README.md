@@ -108,26 +108,32 @@ python -m jobsearch_app.main
 ```
 The Flask application will start on `http://0.0.0.0:5000`. It includes a background check for the Ollama server status. Ensure Ollama is running (`ollama serve` in a separate terminal) and the `sqlite-jobsearch` container is active. For the full UI experience, you will also need to run the frontend application.
 
-### Dockerized Setup and Running
+### Dockerized Setup and Running (Using Docker Compose)
 
-Alternatively, you can run the entire application, including Ollama, within a Docker container.
+For a more streamlined setup that orchestrates both the database and the main application (backend + frontend + Ollama) in separate but connected containers, use Docker Compose.
 
-#### 1. Build the Docker Image
+**Prerequisites:**
+*   Docker and Docker Compose installed on your system.
+*   **TAVILY_API_KEY:** Ensure you have your Tavily API key set as an environment variable in your shell (e.g., `export TAVILY_API_KEY="your_api_key_here"`) before running `docker compose up`, as the application container requires it.
 
-From the project's root directory, build the Docker image. This process will install dependencies, Ollama, and pull the `llama3` model (which may take some time).
-
-```bash
-docker build -t jobsearch-ai-app .
-```
-
-#### 2. Run the Docker Container
-
-Once the image is built, run the container, mapping the necessary ports (Flask app on 5000, Ollama on 11434).
+**From the project's root directory:**
 
 ```bash
-docker run -p 5000:5000 -p 11434:11434 --name jobsearch-agent-container jobsearch-ai-app
+docker compose up --build
 ```
-**Note**: The `ollama serve` process runs in the background within the container, and `llama3` model is pulled during the build phase to ensure readiness.
+
+This command will:
+1.  Build the `db` service (SQLite database) using `database_container/Dockerfile`, creating and populating `data/ai_jobs.db`.
+2.  Build the `app` service using the main `Dockerfile`, which includes installing Python and Node.js dependencies, setting up the virtual environment, pulling the `gemma3` Ollama model, and copying the `start.sh` script.
+3.  Start both the `db` and `app` containers. The `app` container's `start.sh` will then launch Ollama, the Flask backend, and the React frontend in the correct order, waiting for dependencies to be ready.
+4.  Map the necessary ports: `5000` (Flask backend), `5173` (React frontend), and `11434` (Ollama server) to your host machine.
+
+The application will be accessible via your browser at `http://localhost:5173`.
+
+To stop the containers:
+```bash
+docker compose down
+```
 
 ### Interacting with the AI Assistant
 

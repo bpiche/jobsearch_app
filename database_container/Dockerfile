@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app/data
 
-COPY ../data/ai_job_dataset.csv ai_job_dataset.csv
+COPY data/ai_job_dataset.csv ai_job_dataset.csv
 
 # Create SQLite database from CSV
 RUN csvsql --db sqlite:///ai_jobs.db --insert ai_job_dataset.csv && \
